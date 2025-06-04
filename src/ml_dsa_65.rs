@@ -1,3 +1,4 @@
+#![cfg(feature = "std")]
 use sha2::{Sha256, Sha512, Digest};
 
 pub const SECRETKEYBYTES: usize = crate::params::ml_dsa_65::SECRETKEYBYTES;

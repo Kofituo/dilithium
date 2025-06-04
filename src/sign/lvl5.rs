@@ -1,5 +1,3 @@
-use rand::RngCore;
-
 use crate::{fips202, packing, params, poly, poly::Poly, polyvec, polyvec::lvl5::{Polyveck, Polyvecl}};
 const K: usize = params::lvl5::K;
 const L: usize = params::lvl5::L;
@@ -10,8 +8,9 @@ const L: usize = params::lvl5::L;
 /// 
 /// * 'bytes' - an array to fill with random data
 /// * 'n' - number of bytes to generate
+#[cfg(feature = "std")]
 fn random_bytes(bytes: &mut [u8], n: usize) {
-    rand::prelude::thread_rng().try_fill_bytes(&mut bytes[..n]).unwrap();
+    getrandom::fill(&mut bytes[..n]).unwrap();
 }
 
 /// Generate public and private key.
@@ -23,6 +22,12 @@ fn random_bytes(bytes: &mut [u8], n: usize) {
 /// * 'seed' - optional seed; if None [random_bytes()] is used for randomness generation
 pub fn keypair(pk: &mut [u8], sk: &mut [u8], seed: Option<&[u8]>) {
     let mut init_seed = [0u8; params::SEEDBYTES];
+    #[cfg(not(feature = "std"))]
+    match seed {
+        Some(x) => init_seed.copy_from_slice(x),
+        None => panic!("cannot generate random seed!")
+    };
+    #[cfg(feature = "std")]
     match seed {
         Some(x) => init_seed.copy_from_slice(x),
         None => random_bytes(&mut init_seed, params::SEEDBYTES)
@@ -97,7 +102,10 @@ pub fn signature(sig: &mut [u8], msg: &[u8], sk: &[u8], randomized: bool) {
 
     let mut rhoprime = [0u8; params::CRHBYTES];
     if randomized {
+        #[cfg(feature = "std")]
         random_bytes(&mut rhoprime, params::CRHBYTES);
+        #[cfg(not(feature = "std"))]
+        panic!("can not generate random bytes for random vector");
     } else {
         fips202::shake256(&mut rhoprime, params::CRHBYTES, &keymu, params::SEEDBYTES + params::CRHBYTES);
     }
@@ -186,7 +194,8 @@ pub fn signature(sig: &mut [u8], msg: &[u8], sk: &[u8], randomized: bool) {
 /// * 'pk' - public key
 /// 
 /// Returns 'true' if the verification process was successful, 'false' otherwise
-pub fn verify(sig: &[u8], m: &[u8], pk: &[u8]) -> bool {
+pub fn verify(sig: &[u8], m: &[u8], pk: &[u8]) ->
+bool {
     let mut buf = [0u8; K * crate::params::lvl5::POLYW1_PACKEDBYTES];
     let mut rho = [0u8; params::SEEDBYTES];
     let mut mu = [0u8; params::CRHBYTES];
@@ -268,6 +277,7 @@ pub fn verify(sig: &[u8], m: &[u8], pk: &[u8]) -> bool {
     true
 }
 
+#[cfg(feature = "std")]
 #[cfg(test)]
 mod tests {
     #[test]

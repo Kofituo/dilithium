@@ -1,4 +1,4 @@
-use std::mem::swap;
+use core::mem::swap;
 
 use crate::{params, poly, poly::Poly};
 

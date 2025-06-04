@@ -1,5 +1,11 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+extern crate alloc;
+
+#[cfg(feature = "std")]
 pub mod ml_dsa_44;
+#[cfg(feature = "std")]
 pub mod ml_dsa_65;
+#[cfg(feature = "std")]
 pub mod ml_dsa_87;
 pub mod dilithium2;
 pub mod dilithium3;
@@ -19,17 +25,15 @@ pub enum PH {
     SHA512,
 }
 
-use rand::RngCore;
 /// Generate random bytes.
 /// 
 /// # Arguments
 /// 
 /// * 'bytes' - an array to fill with random data
 /// * 'n' - number of bytes to generate
+#[cfg(feature = "std")]
 fn random_bytes(bytes: &mut [u8], n: usize) {
-    rand::prelude::thread_rng()
-        .try_fill_bytes(&mut bytes[..n])
-        .unwrap();
+    getrandom::fill(&mut bytes[..n]).unwrap();
 }
 
 #[cfg(test)]

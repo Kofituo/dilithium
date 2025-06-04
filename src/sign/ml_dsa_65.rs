@@ -1,3 +1,4 @@
+#![cfg(feature = "std")]
 use crate::{fips202, packing, params, poly, poly::Poly, polyvec, polyvec::lvl3::{Polyveck, Polyvecl}};
 const K: usize = params::ml_dsa_65::K;
 const L: usize = params::ml_dsa_65::L;

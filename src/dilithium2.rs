@@ -1,3 +1,4 @@
+#![cfg(feature = "std")]
 pub const SECRETKEYBYTES: usize = crate::params::lvl2::SECRETKEYBYTES;
 pub const PUBLICKEYBYTES: usize = crate::params::lvl2::PUBLICKEYBYTES;
 pub const SIGNBYTES: usize = crate::params::lvl2::SIGNBYTES;
